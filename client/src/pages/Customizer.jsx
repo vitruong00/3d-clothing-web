@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSnapshot } from "valtio";
+
 import config from "../config/config";
 import state from "../store";
 import { download } from "../assets";
@@ -14,22 +15,22 @@ import {
   FilePicker,
   Tab,
 } from "../components";
+
 const Customizer = () => {
   const snap = useSnapshot(state);
 
   const [file, setFile] = useState("");
 
-  const [promp, setPromp] = useState("");
-
+  const [prompt, setPrompt] = useState("");
   const [generatingImg, setGeneratingImg] = useState(false);
 
-  const [activeEditorTab, setActiveEditorTab] = useState(false);
+  const [activeEditorTab, setActiveEditorTab] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState({
-    logoShift: true,
+    logoShirt: true,
     stylishShirt: false,
   });
 
-  //show tab content depending on the activeTab
+  // show tab content depending on the activeTab
   const generateTabContent = () => {
     switch (activeEditorTab) {
       case "colorpicker":
@@ -37,7 +38,14 @@ const Customizer = () => {
       case "filepicker":
         return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
       case "aipicker":
-        return <AIPicker />;
+        return (
+          <AIPicker
+            prompt={prompt}
+            setPrompt={setPrompt}
+            generatingImg={generatingImg}
+            handleSubmit={handleSubmit}
+          />
+        );
       default:
         return null;
     }
@@ -58,7 +66,7 @@ const Customizer = () => {
           prompt,
         }),
       });
-
+      console.log(response);
       const data = await response.json();
 
       handleDecals(type, `data:image/png;base64,${data.photo}`);
@@ -110,6 +118,7 @@ const Customizer = () => {
       setActiveEditorTab("");
     });
   };
+
   return (
     <AnimatePresence>
       {!snap.intro && (
@@ -125,15 +134,15 @@ const Customizer = () => {
                   <Tab
                     key={tab.name}
                     tab={tab}
-                    handleClick={() => {
-                      setActiveEditorTab(tab.name);
-                    }}
+                    handleClick={() => setActiveEditorTab(tab.name)}
                   />
                 ))}
+
                 {generateTabContent()}
               </div>
             </div>
           </motion.div>
+
           <motion.div
             className="absolute z-10 top-5 right-5"
             {...fadeAnimation}
@@ -145,6 +154,7 @@ const Customizer = () => {
               customStyles="w-fit px-4 py-2.5 font-bold text-sm"
             />
           </motion.div>
+
           <motion.div
             className="filtertabs-container"
             {...slideAnimation("up")}
